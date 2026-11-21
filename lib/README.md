@@ -14,7 +14,7 @@ lib/
 │   ├── di/                    # get_it service registration
 │   ├── error/                 # Sealed Result and Failure types
 │   ├── network/               # Dio client and connectivity service
-│   ├── storage/               # Hive setup and secure storage wrapper
+│   ├── storage/               # Hive CE setup and secure storage wrapper
 │   ├── theme/                 # Material 3 light and dark themes
 │   └── utils/                 # Debouncer, formatters, helpers
 │
@@ -44,7 +44,7 @@ lib/
 
 - `domain` is the centre. It holds plain entities and repository interfaces.
   It does not import Flutter, Hive, or Dio.
-- `data` implements the domain interfaces. It talks to Hive, Dio, and secure storage.
+- `data` implements the domain interfaces. It talks to Hive CE, Dio, and secure storage.
 - `presentation` holds `ChangeNotifier` classes, screens, and widgets.
   Widgets read state through Provider and call notifier methods.
 
@@ -61,5 +61,6 @@ Imports point inward: `presentation` -> `domain`, and `data` -> `domain`.
 - `ConnectivityNotifier` (sync) watches the network and triggers sync.
 - `DashboardNotifier` reads tasks and exposes the summary totals.
 
-State classes are immutable `freezed` objects.
+Models and state classes are plain immutable classes that extend `Equatable`.
+They use hand-written `copyWith` and `props`, so the project has no code generation.
 Notifiers extend `ChangeNotifier` and expose one state object each.
