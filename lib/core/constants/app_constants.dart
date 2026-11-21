@@ -4,6 +4,9 @@ class AppConstants {
   // Hive
   static const taskBoxName = 'tasks_box';
 
+  // Secure storage
+  static const authTokenKey = 'auth_token';
+
   // Mock API
   static const todosUrl = 'https://jsonplaceholder.typicode.com/todos';
 

@@ -1,8 +1,12 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 
+import '../../features/auth/data/auth_local_datasource.dart';
+import '../../features/auth/data/auth_repository_impl.dart';
+import '../../features/auth/domain/auth_repository.dart';
 import '../../features/sync/data/sync_service.dart';
 import '../../features/tasks/data/task_local_datasource.dart';
 import '../../features/tasks/data/task_remote_datasource.dart';
@@ -38,5 +42,14 @@ Future<void> configureDependencies() async {
         local: getIt<TaskLocalDataSource>(),
         remote: getIt<TaskRemoteDataSource>(),
       ),
+    )
+    ..registerLazySingleton<FlutterSecureStorage>(
+      () => const FlutterSecureStorage(),
+    )
+    ..registerLazySingleton<AuthLocalDataSource>(
+      () => AuthLocalDataSource(getIt<FlutterSecureStorage>()),
+    )
+    ..registerLazySingleton<AuthRepository>(
+      () => AuthRepositoryImpl(getIt<AuthLocalDataSource>()),
     );
 }
