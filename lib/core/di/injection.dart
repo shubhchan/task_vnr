@@ -1,7 +1,9 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 
+import '../../features/sync/data/sync_service.dart';
 import '../../features/tasks/data/task_local_datasource.dart';
 import '../../features/tasks/data/task_remote_datasource.dart';
 import '../../features/tasks/data/task_repository_impl.dart';
@@ -30,6 +32,7 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton<TaskRemoteDataSource>(
       () => TaskRemoteDataSource(getIt<Dio>()),
     )
+    ..registerLazySingleton<SyncService>(() => SyncService(Connectivity()))
     ..registerLazySingleton<TaskRepository>(
       () => TaskRepositoryImpl(
         local: getIt<TaskLocalDataSource>(),
