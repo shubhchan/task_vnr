@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -14,8 +16,11 @@ class SyncFeedback extends StatefulWidget {
 }
 
 class _SyncFeedbackState extends State<SyncFeedback> {
+  static const _watchdog = Duration(minutes: 1);
+
   TaskNotifier? _notifier;
   bool _wasSyncing = false;
+  Timer? _timeout;
 
   @override
   void didChangeDependencies() {
@@ -39,7 +44,10 @@ class _SyncFeedbackState extends State<SyncFeedback> {
 
     if (state.isSyncing && !_wasSyncing) {
       _showSyncing();
+      _timeout?.cancel();
+      _timeout = Timer(_watchdog, _showTimeout);
     } else if (!state.isSyncing && _wasSyncing) {
+      _timeout?.cancel();
       if (state.error != null) {
         _showError(state.error!);
       } else {
@@ -68,6 +76,35 @@ class _SyncFeedbackState extends State<SyncFeedback> {
               ),
               const SizedBox(width: 12),
               const Text('Syncing your changes…'),
+            ],
+          ),
+        ),
+      );
+  }
+
+  /// If a sync is still running after a minute, stop showing the waiting
+  /// message and surface a clear error instead.
+  void _showTimeout() {
+    if (!mounted || !(_notifier?.state.isSyncing ?? false)) {
+      return;
+    }
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 6),
+          content: Row(
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 18,
+                color: Theme.of(context).colorScheme.onInverseSurface,
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text('Sync is taking too long. Please try again.'),
+              ),
             ],
           ),
         ),
@@ -122,6 +159,7 @@ class _SyncFeedbackState extends State<SyncFeedback> {
 
   @override
   void dispose() {
+    _timeout?.cancel();
     _notifier?.removeListener(_onChanged);
     super.dispose();
   }

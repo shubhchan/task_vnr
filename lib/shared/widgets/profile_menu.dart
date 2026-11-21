@@ -14,6 +14,7 @@ class ProfileMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
       tooltip: 'Profile',
+      padding: EdgeInsets.zero,
       onSelected: (value) {
         if (value == 'logout') {
           _confirmLogout(context);

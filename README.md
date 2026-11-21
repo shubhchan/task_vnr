@@ -99,7 +99,6 @@ The suite covers repository offline fallback and sync, notifier state transition
 - Auto-sync runs when connectivity changes from offline to online. Pending tasks that exist at launch while the device is already online wait for the next network change.
 - Login and sync are simulated locally. No server validates credentials or accepts writes.
 - The budget is fixed in `AppConstants` and cannot be edited in the UI.
-- The demo recording is not yet included in the repository.
 
 ## Improvements for production
 
@@ -112,4 +111,9 @@ The suite covers repository offline fallback and sync, notifier state transition
 
 ## Demo
 
-Attach a short recording that shows offline task creation, the Pending Sync badge, and the badge clearing after connectivity returns.
+A demonstration of offline task creation, the Pending Sync badge, expense calculation, and automatic synchronization when network connectivity is restored:
+
+https://github.com/shubhchan/task_vnr/raw/main/video6057833328403292091.mp4
+
+> **Direct Link:** [Watch or download `video6057833328403292091.mp4`](video6057833328403292091.mp4)
+
