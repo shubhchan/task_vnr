@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/constants/app_constants.dart';
-import '../../../core/utils/debouncer.dart';
 import '../domain/task.dart';
 import 'task_form_sheet.dart';
 import 'task_notifier.dart';
 import 'task_state.dart';
+import 'widgets/task_filter_chips.dart';
+import 'widgets/task_search_field.dart';
 import 'widgets/task_tile.dart';
 
 /// Task list with debounced search, status filters, swipe-delete and undo.
@@ -18,22 +18,6 @@ class TaskListScreen extends StatefulWidget {
 }
 
 class _TaskListScreenState extends State<TaskListScreen> {
-  final _searchController = TextEditingController();
-  late final Debouncer _debouncer;
-
-  @override
-  void initState() {
-    super.initState();
-    _debouncer = Debouncer(duration: AppConstants.searchDebounce);
-  }
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    _debouncer.cancel();
-    super.dispose();
-  }
-
   Future<void> _openForm({Task? task}) async {
     final notifier = context.read<TaskNotifier>();
     final saved = await TaskFormSheet.show(context, task: task);
@@ -65,36 +49,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-            child: TextField(
-              controller: _searchController,
-              decoration: const InputDecoration(
-                hintText: 'Search tasks',
-                prefixIcon: Icon(Icons.search),
-                suffixIcon: Icon(Icons.tune_outlined),
-              ),
-              onChanged: (value) {
-                _debouncer.run(() => notifier.search(value));
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                for (final filter in TaskFilter.values)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(_capitalize(filter.name)),
-                      selected: state.filter == filter,
-                      onSelected: (_) => notifier.setFilter(filter),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          const TaskSearchField(),
+          const TaskFilterChips(),
           if (state.error != null)
             Padding(
               padding: const EdgeInsets.all(8),
@@ -167,6 +123,3 @@ class _TaskListScreenState extends State<TaskListScreen> {
     );
   }
 }
-
-String _capitalize(String value) =>
-    value.isEmpty ? value : value[0].toUpperCase() + value.substring(1);

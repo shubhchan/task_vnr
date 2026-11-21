@@ -15,6 +15,8 @@ class TaskFormSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
+      useSafeArea: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       builder: (_) => TaskFormSheet(task: task),
     );
   }
@@ -91,96 +93,97 @@ class _TaskFormSheetState extends State<TaskFormSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 20,
-          right: 20,
-          bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-        ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                widget.task == null ? 'New task' : 'Edit task',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _title,
-                autofocus: widget.task == null,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: 'Title',
-                  prefixIcon: Icon(Icons.task_alt_outlined),
+    // Animate the keyboard inset instead of snapping the whole sheet upward.
+    return AnimatedPadding(
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  widget.task == null ? 'New task' : 'Edit task',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                validator: (value) {
-                  final title = value?.trim() ?? '';
-                  if (title.isEmpty) {
-                    return 'Enter a title';
-                  }
-                  if (title.length < 3) {
-                    return 'Use at least 3 characters';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _amount,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _title,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    labelText: 'Title',
+                    prefixIcon: Icon(Icons.task_alt_outlined),
+                  ),
+                  validator: (value) {
+                    final title = value?.trim() ?? '';
+                    if (title.isEmpty) {
+                      return 'Enter a title';
+                    }
+                    if (title.length < 3) {
+                      return 'Use at least 3 characters';
+                    }
+                    return null;
+                  },
                 ),
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  labelText: 'Amount (₹)',
-                  prefixIcon: Icon(Icons.currency_rupee),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _amount,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    labelText: 'Amount (₹)',
+                    prefixIcon: Icon(Icons.currency_rupee),
+                  ),
+                  validator: (value) {
+                    final parsed = double.tryParse(
+                      (value ?? '').replaceAll(',', ''),
+                    );
+                    if (parsed == null) {
+                      return 'Enter a valid amount';
+                    }
+                    if (parsed < 0) {
+                      return 'Amount cannot be negative';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  final parsed = double.tryParse(
-                    (value ?? '').replaceAll(',', ''),
-                  );
-                  if (parsed == null) {
-                    return 'Enter a valid amount';
-                  }
-                  if (parsed < 0) {
-                    return 'Amount cannot be negative';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _date,
-                readOnly: true,
-                onTap: _pickDate,
-                decoration: const InputDecoration(
-                  labelText: 'Due date',
-                  prefixIcon: Icon(Icons.event_outlined),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _date,
+                  readOnly: true,
+                  onTap: _pickDate,
+                  decoration: const InputDecoration(
+                    labelText: 'Due date',
+                    prefixIcon: Icon(Icons.event_outlined),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text('Category', style: Theme.of(context).textTheme.labelLarge),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: [
-                  for (final category in TaskCategory.values)
-                    ChoiceChip(
-                      label: Text(_capitalize(category.name)),
-                      selected: _category == category,
-                      onSelected: (_) {
-                        setState(() => _category = category);
-                      },
-                    ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              FilledButton(onPressed: _save, child: const Text('Save task')),
-            ],
+                const SizedBox(height: 16),
+                Text('Category', style: Theme.of(context).textTheme.labelLarge),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    for (final category in TaskCategory.values)
+                      ChoiceChip(
+                        label: Text(_capitalize(category.name)),
+                        selected: _category == category,
+                        onSelected: (_) {
+                          setState(() => _category = category);
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                FilledButton(onPressed: _save, child: const Text('Save task')),
+              ],
+            ),
           ),
         ),
       ),

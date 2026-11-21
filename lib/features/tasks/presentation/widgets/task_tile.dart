@@ -34,14 +34,18 @@ class TaskTile extends StatelessWidget {
           value: task.isCompleted,
           onChanged: (_) => onToggle(),
         ),
-        title: Text(
-          task.title,
-          style: task.isCompleted
-              ? TextStyle(
-                  decoration: TextDecoration.lineThrough,
-                  color: theme.colorScheme.onSurfaceVariant,
-                )
-              : null,
+        title: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 180),
+          child: Text(
+            task.title,
+            key: ValueKey(task.isCompleted),
+            style: task.isCompleted
+                ? TextStyle(
+                    decoration: TextDecoration.lineThrough,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  )
+                : null,
+          ),
         ),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 6),

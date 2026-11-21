@@ -47,9 +47,23 @@ class TaskNotifier extends ChangeNotifier {
   }
 
   /// Toggles completion and returns the updated task, or null on failure.
+  /// The list updates immediately; a failed write restores the old task.
   Future<Task?> toggle(Task task) async {
     final next = task.isCompleted ? task.markPending() : task.markCompleted();
-    return _persist(next);
+    _replace(next);
+
+    final result = await _repository.saveTask(next);
+    return result.fold(
+      (failure) {
+        _replace(task);
+        _set(_state.copyWith(error: failure.message));
+        return null;
+      },
+      (saved) {
+        _replace(saved);
+        return saved;
+      },
+    );
   }
 
   Future<void> delete(Task task) async {
@@ -103,13 +117,21 @@ class TaskNotifier extends ChangeNotifier {
         return null;
       },
       (saved) {
-        final tasks = _state.tasks
-            .map((item) => item.id == saved.id ? saved : item)
-            .toList(growable: false);
-        _set(_state.copyWith(tasks: tasks, clearError: true));
+        _replace(saved);
         return saved;
       },
     );
+  }
+
+  /// Replaces one row without notifying when the value did not change.
+  void _replace(Task task) {
+    final index = _state.tasks.indexWhere((item) => item.id == task.id);
+    if (index == -1 || _state.tasks[index] == task) {
+      return;
+    }
+    final tasks = [..._state.tasks];
+    tasks[index] = task;
+    _set(_state.copyWith(tasks: tasks, clearError: true));
   }
 
   void _set(TaskState next) {
