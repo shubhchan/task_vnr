@@ -37,7 +37,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tasks'),
-        actionsPadding: EdgeInsets.zero,
         actions: [
           IconButton(
             tooltip: 'Sync now',
@@ -45,10 +44,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
             icon: const Icon(Icons.sync_outlined),
           ),
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ProfileMenu(
-              email: context.select<AuthNotifier, String?>(
-                (notifier) => notifier.state.email,
+            padding: const EdgeInsets.only(right: 16.0, left: 4.0),
+            child: Center(
+              child: ProfileMenu(
+                email: context.select<AuthNotifier, String?>(
+                  (notifier) => notifier.state.email,
+                ),
               ),
             ),
           ),

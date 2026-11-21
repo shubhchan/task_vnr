@@ -25,13 +25,14 @@ class DashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Overview'),
-        actionsPadding: EdgeInsets.zero,
         actions: [
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ProfileMenu(
-              email: context.select<AuthNotifier, String?>(
-                (notifier) => notifier.state.email,
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Center(
+              child: ProfileMenu(
+                email: context.select<AuthNotifier, String?>(
+                  (notifier) => notifier.state.email,
+                ),
               ),
             ),
           ),
