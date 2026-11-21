@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/app_constants.dart';
+import '../../../shared/widgets/profile_menu.dart';
 import '../../auth/presentation/auth_notifier.dart';
 import '../../tasks/domain/task.dart';
 import '../../tasks/presentation/task_notifier.dart';
@@ -25,10 +26,10 @@ class DashboardScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Overview'),
         actions: [
-          IconButton(
-            tooltip: 'Log out',
-            icon: const Icon(Icons.logout_outlined),
-            onPressed: () => context.read<AuthNotifier>().logout(),
+          ProfileMenu(
+            email: context.select<AuthNotifier, String?>(
+              (notifier) => notifier.state.email,
+            ),
           ),
         ],
       ),

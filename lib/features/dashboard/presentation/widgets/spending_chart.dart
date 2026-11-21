@@ -1,11 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../tasks/domain/task.dart';
+import '../category_detail_screen.dart';
+import '../spending_colors.dart';
 
 /// Pie chart of spend per category, built with fl_chart.
-/// Tapping a section opens a details dialog with a shared-element transition.
+/// Tapping a section opens a full details screen with a Hero transition.
 class SpendingChart extends StatefulWidget {
   const SpendingChart({super.key, required this.byCategory});
 
@@ -17,13 +18,6 @@ class SpendingChart extends StatefulWidget {
 
 class _SpendingChartState extends State<SpendingChart> {
   int? _touchedIndex;
-
-  static const _colors = {
-    TaskCategory.work: Color(0xFF4F6BED),
-    TaskCategory.personal: Color(0xFF26A69A),
-    TaskCategory.travel: Color(0xFFF59E0B),
-    TaskCategory.food: Color(0xFFEC4899),
-  };
 
   @override
   Widget build(BuildContext context) {
@@ -67,14 +61,14 @@ class _SpendingChartState extends State<SpendingChart> {
                           return;
                         }
                         setState(() => _touchedIndex = index);
-                        _showDetails(context, entries[index], total);
+                        _openDetails(context, entries[index], total);
                       },
                     ),
                     sections: [
                       for (var i = 0; i < entries.length; i++)
                         PieChartSectionData(
                           value: entries[i].value,
-                          color: _colors[entries[i].key],
+                          color: SpendingColors.of(entries[i].key),
                           title: '',
                           radius: _touchedIndex == i ? 44 : 36,
                           showTitle: false,
@@ -98,7 +92,7 @@ class _SpendingChartState extends State<SpendingChart> {
                             width: 10,
                             height: 10,
                             decoration: BoxDecoration(
-                              color: _colors[entry.key],
+                              color: SpendingColors.of(entry.key),
                               borderRadius: BorderRadius.circular(3),
                             ),
                           ),
@@ -119,67 +113,18 @@ class _SpendingChartState extends State<SpendingChart> {
     );
   }
 
-  void _showDetails(
+  void _openDetails(
     BuildContext context,
     MapEntry<TaskCategory, double> entry,
     double total,
   ) {
-    final theme = Theme.of(context);
-    final percent = total == 0 ? 0 : (entry.value / total * 100).round();
-    final money = NumberFormat.currency(
-      locale: 'en_IN',
-      symbol: '₹',
-      decimalDigits: 0,
-    );
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Row(
-          children: [
-            Hero(
-              tag: 'spending-${entry.key.name}',
-              child: Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: _colors[entry.key],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Text(_capitalize(entry.key.name)),
-          ],
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => CategoryDetailScreen(
+          category: entry.key,
+          amount: entry.value,
+          total: total,
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              money.format(entry.value),
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text('$percent% of total spending'),
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: LinearProgressIndicator(
-                value: percent / 100,
-                minHeight: 6,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Close'),
-          ),
-        ],
       ),
     );
   }

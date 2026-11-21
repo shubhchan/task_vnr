@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../shared/widgets/profile_menu.dart';
+import '../../auth/presentation/auth_notifier.dart';
 import '../domain/task.dart';
 import 'task_form_sheet.dart';
 import 'task_notifier.dart';
@@ -40,6 +42,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
             tooltip: 'Sync now',
             onPressed: state.isSyncing ? null : notifier.syncPending,
             icon: const Icon(Icons.sync_outlined),
+          ),
+          ProfileMenu(
+            email: context.select<AuthNotifier, String?>(
+              (notifier) => notifier.state.email,
+            ),
           ),
         ],
       ),
