@@ -66,9 +66,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
   }
 
   Widget _buildList(TaskState state, TaskNotifier notifier) {
-    if (state.isLoading && state.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
     if (state.isEmpty) {
       return const Center(
         child: Padding(

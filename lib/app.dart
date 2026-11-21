@@ -15,6 +15,8 @@ import 'features/sync/presentation/connectivity_notifier.dart';
 import 'features/tasks/domain/task_repository.dart';
 import 'features/tasks/presentation/task_list_screen.dart';
 import 'features/tasks/presentation/task_notifier.dart';
+import 'shared/widgets/loading_screen.dart';
+import 'shared/widgets/sync_feedback.dart';
 
 class OfflineTrackerApp extends StatelessWidget {
   const OfflineTrackerApp({super.key});
@@ -60,11 +62,17 @@ class _AuthGate extends StatelessWidget {
     final status = context.select<AuthNotifier, AuthStatus>(
       (notifier) => notifier.state.status,
     );
+    final isLoading = context.select<TaskNotifier, bool>(
+      (notifier) => notifier.state.isLoading,
+    );
+
+    // Draw no real screen until the session and local data are ready.
+    if (status == AuthStatus.checking || isLoading) {
+      return const LoadingScreen();
+    }
 
     return switch (status) {
-      AuthStatus.checking => const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      ),
+      AuthStatus.checking => const LoadingScreen(),
       AuthStatus.unauthenticated => const LoginScreen(),
       AuthStatus.authenticated => const _HomeShell(),
     };
@@ -85,9 +93,14 @@ class _HomeShellState extends State<_HomeShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: const [DashboardScreen(), TaskListScreen()],
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _index,
+            children: const [DashboardScreen(), TaskListScreen()],
+          ),
+          const SyncFeedback(),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
