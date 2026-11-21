@@ -14,8 +14,7 @@ class TaskAdapter extends TypeAdapter<Task> {
   Task read(BinaryReader reader) {
     final fieldCount = reader.readByte();
     final fields = <int, dynamic>{
-      for (var i = 0; i < fieldCount; i++)
-        reader.readByte(): reader.read(),
+      for (var i = 0; i < fieldCount; i++) reader.readByte(): reader.read(),
     };
 
     return Task(

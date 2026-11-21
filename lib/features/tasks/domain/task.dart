@@ -68,27 +68,27 @@ class Task extends Equatable {
 
   /// Snapshot of a completed task. Keeps the amount so reports don't lose it.
   Task markCompleted() => copyWith(
-        status: TaskStatus.completed,
-        updatedAt: DateTime.now(),
-        isSynced: false,
-      );
+    status: TaskStatus.completed,
+    updatedAt: DateTime.now(),
+    isSynced: false,
+  );
 
   Task markPending() => copyWith(
-        status: TaskStatus.pending,
-        updatedAt: DateTime.now(),
-        isSynced: false,
-      );
+    status: TaskStatus.pending,
+    updatedAt: DateTime.now(),
+    isSynced: false,
+  );
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        amount,
-        dueDate,
-        createdAt,
-        category,
-        status,
-        isSynced,
-        updatedAt,
-      ];
+    id,
+    title,
+    amount,
+    dueDate,
+    createdAt,
+    category,
+    status,
+    isSynced,
+    updatedAt,
+  ];
 }

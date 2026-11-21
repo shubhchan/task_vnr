@@ -44,14 +44,14 @@ sealed class Result<T> extends Equatable {
   bool get isFailure => this is Failure<T>;
 
   T? get valueOrNull => switch (this) {
-        Success<T>(:final value) => value,
-        Failure<T>() => null,
-      };
+    Success<T>(:final value) => value,
+    Failure<T>() => null,
+  };
 
   AppFailure? get failureOrNull => switch (this) {
-        Success<T>() => null,
-        Failure<T>(:final failure) => failure,
-      };
+    Success<T>() => null,
+    Failure<T>(:final failure) => failure,
+  };
 
   R fold<R>(
     R Function(AppFailure failure) onFailure,
