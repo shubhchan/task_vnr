@@ -92,6 +92,15 @@ The suite covers repository offline fallback and sync, notifier state transition
 - Dashboard totals are derived from `TaskState` instead of a separate notifier, which avoids duplicate state.
 - Broad `context.watch` rebuilds the current screen. `const` widgets and `ListView.builder` keep the cost low at this scale.
 
+## Current limitations
+
+- The app is built and verified on Android only. iOS sources were not generated and the app was not built or run on iOS because no macOS environment was available.
+- The release Android manifest does not declare the INTERNET permission yet. Debug and profile manifests include it, so development builds reach the mock API. A release build needs the permission before the first-launch seed can run.
+- Auto-sync runs when connectivity changes from offline to online. Pending tasks that exist at launch while the device is already online wait for the next network change.
+- Login and sync are simulated locally. No server validates credentials or accepts writes.
+- The budget is fixed in `AppConstants` and cannot be edited in the UI.
+- The demo recording is not yet included in the repository.
+
 ## Improvements for production
 
 - Replace the mock auth call and sync with a real API, including refresh tokens and retry with backoff.
