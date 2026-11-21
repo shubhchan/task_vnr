@@ -117,3 +117,4 @@ https://github.com/shubhchan/task_vnr/raw/main/video6057833328403292091.mp4
 
 > **Direct Link:** [Watch or download `video6057833328403292091.mp4`](video6057833328403292091.mp4)
 
+> **Direct Link Loading:** [Watch or download `video6057833328403292096.mp4`](video6057833328403292096.mp4)
