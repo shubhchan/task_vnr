@@ -84,9 +84,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
       return const Center(child: Text('No tasks match your search.'));
     }
 
-    return ListView.builder(
+    return ListView.separated(
       padding: const EdgeInsets.only(bottom: 88),
       itemCount: state.visibleTasks.length,
+      separatorBuilder: (context, index) =>
+          const Divider(height: 1, indent: 16, endIndent: 16),
       itemBuilder: (context, index) {
         final task = state.visibleTasks[index];
         return Dismissible(

@@ -1,9 +1,11 @@
 import '../domain/task.dart';
+import 'seed_task_catalog.dart';
 
 /// DTO for the JSONPlaceholder `/todos` response.
 ///
 /// The API only gives `id`, `title`, and `completed`.
-/// Amount, category, and due date are seeded here so the list looks real.
+/// The API title is kept on the DTO, but [SeedTaskCatalog] supplies the
+/// English wording, category, and expense used in the app.
 class TaskModel {
   const TaskModel({
     required this.id,
@@ -25,20 +27,16 @@ class TaskModel {
 
   Task toDomain({DateTime? now}) {
     final createdAt = now ?? DateTime.now();
+    final seed = SeedTaskCatalog.forId(id);
     return Task(
       id: 'seed-$id',
-      title: title.isEmpty ? 'Untitled task' : title,
-      amount: _seedAmount(id),
-      category: _seedCategory(id),
+      title: seed.title,
+      amount: seed.amount,
+      category: seed.category,
       dueDate: createdAt.add(Duration(days: (id % 7) + 1)),
       createdAt: createdAt,
       status: completed ? TaskStatus.completed : TaskStatus.pending,
       isSynced: true,
     );
   }
-
-  static double _seedAmount(int id) => ((id % 9) + 1) * 250.0;
-
-  static TaskCategory _seedCategory(int id) =>
-      TaskCategory.values[id % TaskCategory.values.length];
 }
