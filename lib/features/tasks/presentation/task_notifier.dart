@@ -67,18 +67,27 @@ class TaskNotifier extends ChangeNotifier {
   }
 
   Future<void> delete(Task task) async {
-    final result = await _repository.deleteTask(task.id);
-    result.fold(
-      (failure) => _set(_state.copyWith(error: failure.message)),
-      (_) => _set(
-        _state.copyWith(
-          tasks: _state.tasks
-              .where((item) => item.id != task.id)
-              .toList(growable: false),
-          clearError: true,
-        ),
+    // Remove the row first so a fast Undo cannot be overwritten later.
+    _set(
+      _state.copyWith(
+        tasks: _state.tasks
+            .where((item) => item.id != task.id)
+            .toList(growable: false),
+        clearError: true,
       ),
     );
+
+    final result = await _repository.deleteTask(task.id);
+    if (result.isFailure) {
+      final message = result.failureOrNull?.message;
+      if (!_state.tasks.any((item) => item.id == task.id)) {
+        final tasks = [..._state.tasks, task]
+          ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+        _set(_state.copyWith(tasks: tasks, error: message));
+      } else {
+        _set(_state.copyWith(error: message));
+      }
+    }
   }
 
   /// Puts back a deleted task. Used by the Undo snackbar action.
@@ -110,6 +119,7 @@ class TaskNotifier extends ChangeNotifier {
   }
 
   Future<Task?> _persist(Task task) async {
+    final wasDeleted = !_state.tasks.any((item) => item.id == task.id);
     final result = await _repository.saveTask(task);
     return result.fold(
       (failure) {
@@ -117,7 +127,14 @@ class TaskNotifier extends ChangeNotifier {
         return null;
       },
       (saved) {
-        _replace(saved);
+        if (wasDeleted) {
+          // Undo: the row is gone from state, so insert it back in order.
+          final tasks = [..._state.tasks, saved]
+            ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+          _set(_state.copyWith(tasks: tasks, clearError: true));
+        } else {
+          _replace(saved);
+        }
         return saved;
       },
     );
