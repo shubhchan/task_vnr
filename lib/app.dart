@@ -9,9 +9,11 @@ import 'features/auth/domain/auth_repository.dart';
 import 'features/auth/presentation/auth_notifier.dart';
 import 'features/auth/presentation/auth_state.dart';
 import 'features/auth/presentation/login_screen.dart';
+import 'features/dashboard/presentation/dashboard_screen.dart';
 import 'features/sync/data/sync_service.dart';
 import 'features/sync/presentation/connectivity_notifier.dart';
 import 'features/tasks/domain/task_repository.dart';
+import 'features/tasks/presentation/task_list_screen.dart';
 import 'features/tasks/presentation/task_notifier.dart';
 
 class OfflineTrackerApp extends StatelessWidget {
@@ -64,29 +66,47 @@ class _AuthGate extends StatelessWidget {
         body: Center(child: CircularProgressIndicator()),
       ),
       AuthStatus.unauthenticated => const LoginScreen(),
-      AuthStatus.authenticated => const _HomePlaceholder(),
+      AuthStatus.authenticated => const _HomeShell(),
     };
   }
 }
 
-// Temporary shell. The task list and dashboard replace this in the next step.
-class _HomePlaceholder extends StatelessWidget {
-  const _HomePlaceholder();
+/// Two-tab shell: Overview and Tasks.
+class _HomeShell extends StatefulWidget {
+  const _HomeShell();
+
+  @override
+  State<_HomeShell> createState() => _HomeShellState();
+}
+
+class _HomeShellState extends State<_HomeShell> {
+  int _index = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Offline Tracker'),
-        actions: [
-          IconButton(
-            tooltip: 'Log out',
-            icon: const Icon(Icons.logout_outlined),
-            onPressed: () => context.read<AuthNotifier>().logout(),
+      body: IndexedStack(
+        index: _index,
+        children: const [DashboardScreen(), TaskListScreen()],
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _index,
+        onDestinationSelected: (index) {
+          setState(() => _index = index);
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.space_dashboard_outlined),
+            selectedIcon: Icon(Icons.space_dashboard),
+            label: 'Overview',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.checklist_outlined),
+            selectedIcon: Icon(Icons.checklist),
+            label: 'Tasks',
           ),
         ],
       ),
-      body: const Center(child: Text('Tasks and dashboard coming next')),
     );
   }
 }
